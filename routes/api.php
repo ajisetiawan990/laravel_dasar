@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\TransactionController;
+use App\Models\Transaction;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +29,8 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('categories', CategoryController::class);
-    Route::apiResource('products', CategoryController::class);
+    Route::apiResource('products', ProductController::class);
+    Route::post('/transactions', [TransactionController::class, 'store']);
 });
 
 // Route::get('/products', [ProductController::class, 'index'])->name('index');
