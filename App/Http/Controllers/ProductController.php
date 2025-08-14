@@ -4,24 +4,33 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Repositories\ProductRepository;
+use App\Repositories\ProductRepositoryInterface;
 
 class ProductController extends Controller
 {
+    protected $productRepo;
+
+    public function __construct(ProductRepositoryInterface $productRepo)
+    {
+        $this->productRepo = $productRepo;
+    }
+
     public function index()
     {
-        return Product::with('category')->get();
+        return response()->json($this->productRepo->all());
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
             'name' => 'required|max:50|string',
             'price' => 'required|integer',
-            'stock' => 'required|integer'
+            'stock' => 'required|integer',
+            'category_id' => 'required|exists:categories,id'
         ]);
 
-        $product = Product::create($validated);
+        $product = $this->productRepo->create($validated);
 
         return response()->json([
             'status' => 'succes',
@@ -30,12 +39,13 @@ class ProductController extends Controller
         ], 201);
     }
 
-    public function show(Product $id)
+    public function show($id)
     {
-        return $id->load('category');
+        $product = Product::with('category')->find($id);
+        return response()->json($product);
     }
 
-    public function update(Request $request, Product $id)
+    public function update(Request $request, $id)
     {
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
@@ -44,17 +54,18 @@ class ProductController extends Controller
             'stock' => 'required|integer'
         ]);
 
-        $product = Product::update($validated);
+        $product = $this->productRepo->update($id, $validated);
+
         return response()->json([
             'status' => 'succes',
-            'message' => 'product berhasil dibuat',
+            'message' => 'product berhasil diubah',
             'product' => $product
-        ], 201);
+        ], 200);
     }
 
-    public function destroy(Product $id)
+    public function destroy(Product $product)
     {
-        $id->delete();
+        $this->productRepo->delete($product->id);
         return response()->json([
             'status' => 'Succes',
             'message' => 'Product telah dihapus oleh kamu'

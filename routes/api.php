@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('products', ProductController::class);
+    Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::post('/transactions', [TransactionController::class, 'store']);
 });
 
